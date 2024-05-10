@@ -1,0 +1,50 @@
+local BOT_TOKEN = "6563984799:AAEb0ZX50zZ9Ipa29wYZRAHMZOpQSn6AOmc"
+local BASE_URL = "https://api.telegram.org/bot"..BOT_TOKEN
+
+function deleteMedia(chat_id)
+    local response = sendRequest("deleteChatPhoto", {chat_id = chat_id})
+    if response.ok then
+        print("تم مسح الصورة")
+    else
+        print("فشل في مسح الصورة")
+    end
+    
+    response = sendRequest("deleteChatVideo", {chat_id = chat_id})
+    if response.ok then
+        print("تم مسح الفيديو")
+    else
+        print("فشل في مسح الفيديو")
+    end
+    
+    response = sendRequest("deleteChatAudio", {chat_id = chat_id})
+    if response.ok then
+        print("تم مسح الصوت")
+    else
+        print("فشل في مسح الصوت")
+    end
+end
+
+function sendRequest(method, params)
+    local url = BASE_URL.."/"..method
+    local response = http.request{
+        url = url,
+        method = "POST",
+        headers = {["Content-Type"] = "application/json"},
+        data = json.encode(params)
+    }
+    return json.decode(response.content)
+end
+
+function onUpdate(Update)
+    local message = Update.message
+    local chat_id = message.chat.id
+    if message.text == "امسح" then
+        deleteMedia(chat_id)
+    end
+end
+
+function onMessageReceive(msg)
+    if msg.update_id then
+        onUpdate(msg)
+    end
+end
